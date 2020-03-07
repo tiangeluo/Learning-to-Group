@@ -1,0 +1,103 @@
+# Use commented parameters to test
+TASK:
+  "ins_seg_3d"
+MODEL:
+  TYPE: "CUSTOM"
+  CUSTOM:
+    classifier:
+      type: "RegionClassifier"
+      backbone:
+        type: "PointNet2SSG"
+        in_channels: 3
+        num_centroids: (64, 0)
+        radius: (0.04, -1.0)
+        num_neighbours: (32, -1)
+        #sa_channels: ((16, 16, 32), (32, 32, 64))
+        sa_channels: ((64, 64, 128), (128, 128, 128))
+        fp_channels: ((128, 128), (64, 64, 64))
+        num_fp_neighbours: (0, 3)
+      head:
+        type: "ConcatHead"
+        in_channels: 64
+    #loss:
+    #  ins_weight: 1.
+    #  sampler:
+    #    cls_weight: (1., 1.)
+    #    mode: 'all'
+    #    ohem_frac: 0.2
+INPUT:
+  IN_CHANNELS: 3
+#  NUM_POINTS: -1
+DATASET:
+  #ROOT_DIR: "data/partnet/ins_seg_h5_for_detection_100k"
+  ROOT_DIR: "data/partnet/ins_seg_h5_for_detection"
+  TYPE: "PartNetInsSeg"
+#  ROOT_DIR: "data/shapenet_part"
+#  TYPE: "ShapeNetPart"
+  PartNetInsSeg:
+    TRAIN:
+      split: "train"
+      #split: "val"
+      shape: ["Chair","Lamp","StorageFurniture"]
+      #shape: "TrashCan"
+      level: 3
+    VAL:
+      #split: "train"
+      split: "val"
+      #split: "test"
+      #shape: "TrashCan"
+      shape: "Chair"
+      #shape: "Table"
+      #shape: "StorageFurniture"
+      #shape: "Faucet"
+      level: 3
+    TEST:
+      #split: "val"
+      split: "test"
+      #shape: "Chair"
+      shape: "Lamp"
+      #shape: "Bed"
+      #shape: "Faucet"
+      level: 1
+DATALOADER:
+  NUM_WORKERS: 0
+  #Sampling:
+  #  radius: (0.15,)
+  #  num_neighbours: (512,)
+  #  #num_centroids: 128
+  #  num_centroids: 512
+  #  #num_centroids: 2048
+  #  with_renorm: false
+  #  with_shift: false
+  KWARGS:
+    num_centroids: 128
+    #num_centroids: 512
+    radius: 0.2
+    num_neighbours: 512
+    with_renorm: False
+    with_resample: False
+    with_shift: False
+OPTIMIZER:
+  TYPE: "Adam"
+  #BASE_LR: 0.0005
+  BASE_LR: 0.001
+SCHEDULER:
+  TYPE: "StepLR"
+  StepLR:
+    gamma: 0.5
+    step_size: 1
+  CLIP_LR: 1e-5
+  MAX_EPOCH: 120
+TRAIN:
+  #BATCH_SIZE: 2
+  BATCH_SIZE: 6
+  #BATCH_SIZE: 16
+  LOG_PERIOD: 20
+  VAL_PERIOD: 1
+  #CHECKPOINT_PERIOD: 50
+  CHECKPOINT_PERIOD: 1
+  # The original implementation does not include data augmentation.
+#  AUGMENTATION: ("RotateY", "Jitter",)
+TEST:
+  BATCH_SIZE: 1
+  LEVEL: 2
