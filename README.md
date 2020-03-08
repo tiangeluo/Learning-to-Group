@@ -1,6 +1,8 @@
 # Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories
 Created by <a href="https://tiangeluo.github.io/" target="_blank">Tiange Luo</a>, <a href="https://cs.stanford.edu/~kaichun/" target="_blank">Kaichun Mo</a>, <a href="https://sites.google.com/view/zhiao-huang" target="_blank">Zhiao Huang</a>, <a href="http://jerryxu.net" target="_blank">Jiarui Xu</a>, <a href="https://samhu1989.github.io" target="_blank">Siyu Hu</a>, <a href="https://scholar.google.com/citations?user=VZHxoh8AAAAJ&hl=zh-CN" target="_blank">Liwei Wang</a>, <a href="http://cseweb.ucsd.edu/~haosu/" target="_blank">Hao Su</a>
 
+![Overview](https://github.com/tiangeluo/Learning-to-Group/blob/master/overview.png)
+
 ## Introduction
 This repository is code release for our ICLR 2020 paper [<a href="https://arxiv.org/abs/2002.06478">here</a>].
 
