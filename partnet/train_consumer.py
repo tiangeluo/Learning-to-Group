@@ -132,6 +132,8 @@ def train_one_epoch(
     logger = logging.getLogger('shaper.train')
     meters = MetricLogger(delimiter='  ')
 
+    softmax = nn.Softmax()
+    end = time.time()
     model_merge.train()
     sys.stdout.flush()
     BS = policy_update_bs
