@@ -458,15 +458,15 @@ def train_one_epoch(model,
                     elif remote_flag or cur_xyz_pool.shape[0] <= 32:
                         logits1 = model_merge(part_xyz11,'backbone')
                         logits2 = model_merge(part_xyz22,'backbone')
-                        merge_logits = model_merge(torch.cat([part_xyz, torch.cat([logits1.unsqueeze(-1).expand(-1,-1,part_xyz1.shape[-1]), logits2.unsqueeze(-1).expand(-1,-1,part_xyz2.shape[-1])], dim=-1)], dim=1), 'head')
+                        context_logits = model_merge(context_xyz,'backbone2')
+                        merge_logits = model_merge(torch.cat([part_xyz, torch.cat([logits1.unsqueeze(-1).expand(-1,-1,part_xyz1.shape[-1]), logits2.unsqueeze(-1).expand(-1,-1,part_xyz2.shape[-1])], dim=-1), torch.cat([context_logits.unsqueeze(-1).expand(-1,-1,part_xyz.shape[-1])], dim=-1)], dim=1), 'head2')
                         _, p = torch.max(merge_logits, 1)
                         siamese_label = p
                     #if there are too few sub-parts in the pool, we use the context branch to predict
                     else:
                         logits1 = model_merge(part_xyz11,'backbone')
                         logits2 = model_merge(part_xyz22,'backbone')
-                        context_logits = model_merge(context_xyz,'backbone2')
-                        merge_logits = model_merge(torch.cat([part_xyz, torch.cat([logits1.unsqueeze(-1).expand(-1,-1,part_xyz1.shape[-1]), logits2.unsqueeze(-1).expand(-1,-1,part_xyz2.shape[-1])], dim=-1), torch.cat([context_logits.unsqueeze(-1).expand(-1,-1,part_xyz.shape[-1])], dim=-1)], dim=1), 'head2')
+                        merge_logits = model_merge(torch.cat([part_xyz, torch.cat([logits1.unsqueeze(-1).expand(-1,-1,part_xyz1.shape[-1]), logits2.unsqueeze(-1).expand(-1,-1,part_xyz2.shape[-1])], dim=-1)], dim=1), 'head')
                         _, p = torch.max(merge_logits, 1)
                         siamese_label = p
 
