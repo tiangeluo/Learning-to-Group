@@ -76,12 +76,6 @@ def mask_to_xyz(pc, index, sample_num=1024):
         parts_xyz[i,:,:cur_sample_num] = part_pc[:,torch.randperm(length)[:cur_sample_num]]
     return parts_xyz.cuda(), parts_mean.cuda().unsqueeze(-1)
 
-def tile(tensor, dim, n):
-    """Tile n times along the dim axis"""
-    if dim == 0:
-        return tensor.unsqueeze(0).transpose(0,1).repeat(1,n,1).view(-1,tensor.shape[1])
-    else:
-        return tensor.unsqueeze(0).transpose(0,1).repeat(1,1,n).view(tensor.shape[0], -1)
 def tile(a, dim, n_tile):
     init_dim = a.size(dim)
     repeat_idx = [1] * a.dim()
@@ -89,24 +83,6 @@ def tile(a, dim, n_tile):
     a = a.repeat(*(repeat_idx))
     order_index = torch.LongTensor(np.concatenate([init_dim * np.arange(n_tile) + i for i in range(init_dim)])).cuda()
     return torch.index_select(a, dim, order_index)
-
-class ContrastiveLoss(torch.nn.Module):
-    """
-    Contrastive loss function.
-    Based on: http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
-    """
-
-    def __init__(self, margin=2.0):
-        super(ContrastiveLoss, self).__init__()
-        self.margin = margin
-
-    def forward(self, output1, output2, label):
-        euclidean_distance = F.pairwise_distance(output1, output2, keepdim = True)
-        loss_contrastive = torch.mean((label) * torch.pow(euclidean_distance, 2) +
-                                      (1-label) * torch.pow(torch.clamp(self.margin - euclidean_distance, min=0.0), 2))
-
-
-        return loss_contrastive
 
 policy_update_bs = 64
 xyz_pool1 = torch.zeros([0,3,1024]).float()
@@ -194,6 +170,22 @@ def train_one_epoch(model,
                 print('load checkpoint from %s'%cur_checkpoint)
                 model_merge.eval()
 
+        #initialization
+        sub_xyz_pool1 = torch.zeros([0,3,1024]).float().cuda()
+        sub_xyz_pool2 = torch.zeros([0,3,1024]).float().cuda()
+        sub_context_xyz_pool1 = torch.zeros([0,3,1024]).float().cuda()
+        sub_context_xyz_pool2 = torch.zeros([0,3,1024]).float().cuda()
+        sub_context_context_xyz_pool = torch.zeros([0,3,2048]).float().cuda()
+        sub_context_label_pool = torch.zeros([0]).float().cuda()
+        sub_context_purity_pool = torch.zeros([0]).float().cuda()
+        sub_label_pool = torch.zeros([0]).float().cuda()
+        sub_purity_pool = torch.zeros([0]).float().cuda()
+        sub_purity_xyz_pool = torch.zeros([0,3,1024]).float().cuda()
+        sub_policy_purity_pool = torch.zeros([0,policy_update_bs]).float().cuda()
+        sub_policy_reward_pool = torch.zeros([0,policy_update_bs]).float().cuda()
+        sub_policy_xyz_pool1 = torch.zeros([0,policy_update_bs,3,1024]).float().cuda()
+        sub_policy_xyz_pool2 = torch.zeros([0,policy_update_bs,3,1024]).float().cuda()
+
         data_time = time.time() - end
 
         data_batch = {k: v.cuda(non_blocking=True) for k, v in data_batch.items()}
@@ -241,31 +233,29 @@ def train_one_epoch(model,
         meters.update(centroid_valid_purity_ratio = torch.sum(torch.index_select(box_purity_mask, dim=0, index=centroid_valid_mask.nonzero().squeeze())).float()/torch.sum(centroid_valid_mask),centroid_nonvalid_purity_ratio = torch.sum(torch.index_select(box_purity_mask, dim=0, index=(1-centroid_valid_mask).nonzero().squeeze())).float()/torch.sum(1-centroid_valid_mask))
         purity_pred = torch.zeros([0]).type(torch.FloatTensor).cuda()
 
+        for i in range(batch_size):
+            cur_xyz_pool, xyz_mean = mask_to_xyz(data_batch['points'][i], box_index_expand.view(batch_size,num_centroids,num_points)[i])
+            cur_xyz_pool -= xyz_mean
+            cur_xyz_pool /=(cur_xyz_pool+1e-6).norm(dim=1).max(dim=-1)[0].unsqueeze(-1).unsqueeze(-1)
+            cur_valid_l2 = box_purity_valid_mask_l2.type(torch.LongTensor).view(batch_size, num_centroids)[i].cuda()
+            cur_label_l2 = box_purity.view(batch_size,num_centroids)[i].cuda()
+
+            cur_xyz_pool = torch.index_select(cur_xyz_pool, dim=0, index=cur_valid_l2.nonzero().squeeze())
+            cur_label_l2 = torch.index_select(cur_label_l2, dim=0, index=cur_valid_l2.nonzero().squeeze())
+            sub_purity_xyz_pool = torch.cat([sub_purity_xyz_pool, cur_xyz_pool.clone()],dim=0)
+            sub_purity_pool = torch.cat([sub_purity_pool, cur_label_l2.clone()], dim=0)
+
         #update pool by valid_mask
         valid_mask = gtmin_mask.long() *  box_purity_mask.long() * (centroid_label!=0).long()
         centroid_label = torch.index_select(centroid_label, dim=0, index=valid_mask.nonzero().squeeze())
+        box_index_expand = torch.index_select(box_index_expand, dim=0, index=valid_mask.nonzero().squeeze())
 
         box_num = torch.sum(valid_mask.reshape(batch_size, num_centroids),1)
         cumsum_box_num = torch.cumsum(box_num, dim=0)
         cumsum_box_num = torch.cat([torch.from_numpy(np.array(0)).cuda().unsqueeze(0),cumsum_box_num],dim=0)
-
-        #initialization
         pc_all = data_batch['points']
         centroid_label_all = centroid_label.clone()
-        sub_xyz_pool1 = torch.zeros([0,3,1024]).float().cuda()
-        sub_xyz_pool2 = torch.zeros([0,3,1024]).float().cuda()
-        sub_context_xyz_pool1 = torch.zeros([0,3,1024]).float().cuda()
-        sub_context_xyz_pool2 = torch.zeros([0,3,1024]).float().cuda()
-        sub_context_context_xyz_pool = torch.zeros([0,3,2048]).float().cuda()
-        sub_context_label_pool = torch.zeros([0]).float().cuda()
-        sub_context_purity_pool = torch.zeros([0]).float().cuda()
-        sub_label_pool = torch.zeros([0]).float().cuda()
-        sub_purity_pool = torch.zeros([0]).float().cuda()
-        sub_purity_xyz_pool = torch.zeros([0,3,1024]).float().cuda()
-        sub_policy_purity_pool = torch.zeros([0,policy_update_bs]).float().cuda()
-        sub_policy_reward_pool = torch.zeros([0,policy_update_bs]).float().cuda()
-        sub_policy_xyz_pool1 = torch.zeros([0,policy_update_bs,3,1024]).float().cuda()
-        sub_policy_xyz_pool2 = torch.zeros([0,policy_update_bs,3,1024]).float().cuda()
+
         for i in range(pc_all.shape[0]):
             bs = policy_total_bs
             BS = policy_update_bs
