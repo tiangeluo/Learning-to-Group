@@ -500,7 +500,7 @@ def main():
     if output_dir:
         config_path = osp.splitext(args.config_file)[0]
         config_path = config_path.replace('configs', 'outputs')
-        output_dir_merge = output_dir.replace('@', config_path)+'_merge'
+        output_dir_merge = 'outputs/pn_stage2_fusion_l%d_merge'%cfg.TEST.LEVEL
         os.makedirs(output_dir_merge, exist_ok=True)
         output_dir = osp.join('outputs/stage1/', cfg.DATASET.PartNetInsSeg.TRAIN.stage1)
         output_dir_save = './results/'+cfg.DATASET.PartNetInsSeg.TEST.shape

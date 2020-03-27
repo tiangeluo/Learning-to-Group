@@ -96,7 +96,7 @@ def compute_ap(tp, fp, gt_npos, n_bins=100, plot_fn=None):
 
     return ap
 
-def eval_recall_iou_nosem_fusion(stat_fn, gt_dir, pred_dir, iou_threshold=0.5, plot_dir=None):
+def eval_recall_iou_nosem_fusion(gt_dir, pred_dir, iou_threshold=0.5, plot_dir=None):
     """ Input:  stat_fn contains all part ids and names 
                 gt_dir contains test-xx.h5
                 pred_dir contains test-xx.h5
@@ -111,31 +111,24 @@ def eval_recall_iou_nosem_fusion(stat_fn, gt_dir, pred_dir, iou_threshold=0.5, p
         check_mkdir(plot_dir)
 
     # read stat_fn
-    with open(stat_fn, 'r') as fin:
-        part_name_list = [item.rstrip().split()[1] for item in fin.readlines()]
-    print('Part Name List: ', part_name_list)
-    n_labels = len(part_name_list)
-    print('Total Number of Semantic Labels: %d' % n_labels)
+    #with open(stat_fn, 'r') as fin:
+    #    part_name_list = [item.rstrip().split()[1] for item in fin.readlines()]
+    #print('Part Name List: ', part_name_list)
+    #n_labels = len(part_name_list)
+    #print('Total Number of Semantic Labels: %d' % n_labels)
 
     # check all h5 files
     test_h5_list = []
     for item in os.listdir(gt_dir):
         if item.startswith('test-') and item.endswith('.h5'):
-            #if not os.path.exists(os.path.join(pred_dir, item)):
-            #    print('ERROR: h5 file %s is in gt directory but not in pred directory.')
-            #    exit(1)
             test_h5_list.append(item)
 
     # read each h5 file and collect per-part-category true_pos, false_pos and confidence scores
-    #true_pos_list = [[] for item in part_name_list]
-    #false_pos_list = [[] for item in part_name_list]
-    #conf_score_list = [[] for item in part_name_list]
     true_pos_list = []
     false_pos_list = []
     conf_score_list = []
     iou_list =[]
 
-    gt_npos = np.zeros((n_labels), dtype=np.int32)
     gt_ins_num = 0
 
     for item in test_h5_list:
@@ -164,13 +157,6 @@ def eval_recall_iou_nosem_fusion(stat_fn, gt_dir, pred_dir, iou_threshold=0.5, p
             cur_gt_other = gt_mask_other[i, :]
 
             gt_ins_num += np.sum(cur_gt_valid)
-            ## classify all valid gt masks by part categories
-            #gt_mask_per_cat = [[] for item in part_name_list]
-            #for j in range(gt_n_ins):
-            #    if cur_gt_valid[j]:
-            #        sem_id = cur_gt_label[j]
-            #        gt_mask_per_cat[sem_id].append(j)
-            #        gt_npos[sem_id] += 1
 
             # sort prediction and match iou to gt masks
             assert np.sum(cur_gt_mask[np.sum(cur_gt_valid):]) == 0
