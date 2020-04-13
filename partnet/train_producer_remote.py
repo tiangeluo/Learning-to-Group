@@ -165,7 +165,10 @@ def train_one_epoch(model,
             new_checkpoint = checkpoint_f.read()
             checkpoint_f.close()
             if cur_checkpoint != new_checkpoint:
-                checkpointer_embed.load(None, resume=True)
+                try:
+                    checkpointer_embed.load(None, resume=True)
+                except:
+                    print('error',new_checkpoint)
                 cur_checkpoint = new_checkpoint
                 print('load checkpoint from %s'%cur_checkpoint)
                 model_merge.eval()
@@ -232,18 +235,6 @@ def train_one_epoch(model,
         centroid_valid_mask = data_batch['centroid_valid_mask'].reshape(-1).long()
         meters.update(centroid_valid_purity_ratio = torch.sum(torch.index_select(box_purity_mask, dim=0, index=centroid_valid_mask.nonzero().squeeze())).float()/torch.sum(centroid_valid_mask),centroid_nonvalid_purity_ratio = torch.sum(torch.index_select(box_purity_mask, dim=0, index=(1-centroid_valid_mask).nonzero().squeeze())).float()/torch.sum(1-centroid_valid_mask))
         purity_pred = torch.zeros([0]).type(torch.FloatTensor).cuda()
-
-        for i in range(batch_size):
-            cur_xyz_pool, xyz_mean = mask_to_xyz(data_batch['points'][i], box_index_expand.view(batch_size,num_centroids,num_points)[i])
-            cur_xyz_pool -= xyz_mean
-            cur_xyz_pool /=(cur_xyz_pool+1e-6).norm(dim=1).max(dim=-1)[0].unsqueeze(-1).unsqueeze(-1)
-            cur_valid_l2 = box_purity_valid_mask_l2.type(torch.LongTensor).view(batch_size, num_centroids)[i].cuda()
-            cur_label_l2 = box_purity.view(batch_size,num_centroids)[i].cuda()
-
-            cur_xyz_pool = torch.index_select(cur_xyz_pool, dim=0, index=cur_valid_l2.nonzero().squeeze())
-            cur_label_l2 = torch.index_select(cur_label_l2, dim=0, index=cur_valid_l2.nonzero().squeeze())
-            sub_purity_xyz_pool = torch.cat([sub_purity_xyz_pool, cur_xyz_pool.clone()],dim=0)
-            sub_purity_pool = torch.cat([sub_purity_pool, cur_label_l2.clone()], dim=0)
 
         #update pool by valid_mask
         valid_mask = gtmin_mask.long() *  box_purity_mask.long() * (centroid_label!=0).long()

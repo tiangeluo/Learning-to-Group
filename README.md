@@ -24,7 +24,7 @@ If you find our work useful in your research, please consider citing:
 
 ## Usage
 ### Installation
-We provide a docker image to set up the environment https://hub.docker.com/r/haosulab/shaper.
+We provide a docker image to set up the environment https://hub.docker.com/r/haosulab/shaper. The pytorch we used is `1.0.1.post2`.
 
 When using the docker image for the first time, please run this command to install some CUDA extensions.
 ```
@@ -35,6 +35,8 @@ Every time you start docker, please run this command to install some necessary c
 ```
 pip install -r requirements.txt
 ```
+
+Currently, we only support single GPU, please specify the GPU when you use (e.g. `export CUDA_VISIBLE_DEVICES=0`).
 
 ### Download Data
 We test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. Please fill out [this Google Form](https://docs.google.com/forms/d/e/1FAIpQLSd3dyI1eZVIR_Sekvy8_HPXn2becP9lqjDImoe6aVtzmHBe7w/viewform) to get access to all the data and download the HDF5 files (20GB) for the instance segmentation task. We would use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
