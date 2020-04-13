@@ -83,11 +83,10 @@ Pretrained models can be downloaded [here](https://drive.google.com/open?id=1jBP
 
 - Please move `model_120.pth` to `outputs/stage1/fusion`.
 
-<!--
 - Please move `model_1600_l3.pth` to `outputs/pn_stage2_fusion_l3_merge` and rename as `model_1600.pth`, copy a `last_checkpoint` to `outputs/pn_stage2_fusion_l3_merge`.
 - Please move `model_1600_l2.pth` to `outputs/pn_stage2_fusion_l2_merge` and rename as `model_1600.pth`, copy a `last_checkpoint` to `outputs/pn_stage2_fusion_l2_merge`.
 - Please move `model_1600_l1.pth` to `outputs/pn_stage2_fusion_l1_merge` and rename as `model_1600.pth`, copy a `last_checkpoint` to `outputs/pn_stage2_fusion_l1_merge`.
--->
+
 
 ## Acknowledgements
 This repo is based on the 3d vision pytorch library **shaper** implemented by <a href="https://sites.google.com/eng.ucsd.edu/jiayuan-gu" target="_blank">Jiayuan Gu</a>.
