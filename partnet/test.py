@@ -337,15 +337,20 @@ def test(cfg, output_dir='', output_dir_merge='', output_dir_save=''):
                         context_xyz = context_xyz - xyz_mean
                         context_xyz /= context_xyz.norm(dim=1).max(dim=-1)[0].unsqueeze(-1).unsqueeze(-1)
 
-                        if (cur_xyz_pool.shape[0] >= 32):
+                        if cfg.DATASET.PartNetInsSeg.TEST.shape not in ['Chair','Lamp','StorageFurniture']:
                             logits1 = model_merge(part_xyz1,'backbone')
                             logits2 = model_merge(part_xyz2,'backbone')
                             merge_logits = model_merge(torch.cat([part_xyz, torch.cat([logits1.unsqueeze(-1).expand(-1,-1,part_xyz1.shape[-1]), logits2.unsqueeze(-1).expand(-1,-1,part_xyz2.shape[-1])], dim=-1)], dim=1), 'head')
                         else:
-                            logits1 = model_merge(part_xyz1,'backbone')
-                            logits2 = model_merge(part_xyz2,'backbone')
-                            context_logits = model_merge(context_xyz,'backbone2')
-                            merge_logits = model_merge(torch.cat([part_xyz, torch.cat([logits1.unsqueeze(-1).expand(-1,-1,part_xyz1.shape[-1]), logits2.unsqueeze(-1).expand(-1,-1,part_xyz2.shape[-1])], dim=-1), torch.cat([context_logits.unsqueeze(-1).expand(-1,-1,part_xyz.shape[-1])], dim=-1)], dim=1), 'head2')
+                            if (cur_xyz_pool.shape[0] >= 32):
+                                logits1 = model_merge(part_xyz1,'backbone')
+                                logits2 = model_merge(part_xyz2,'backbone')
+                                merge_logits = model_merge(torch.cat([part_xyz, torch.cat([logits1.unsqueeze(-1).expand(-1,-1,part_xyz1.shape[-1]), logits2.unsqueeze(-1).expand(-1,-1,part_xyz2.shape[-1])], dim=-1)], dim=1), 'head')
+                            else:
+                                logits1 = model_merge(part_xyz1,'backbone')
+                                logits2 = model_merge(part_xyz2,'backbone')
+                                context_logits = model_merge(context_xyz,'backbone2')
+                                merge_logits = model_merge(torch.cat([part_xyz, torch.cat([logits1.unsqueeze(-1).expand(-1,-1,part_xyz1.shape[-1]), logits2.unsqueeze(-1).expand(-1,-1,part_xyz2.shape[-1])], dim=-1), torch.cat([context_logits.unsqueeze(-1).expand(-1,-1,part_xyz.shape[-1])], dim=-1)], dim=1), 'head2')
 
                         _, p = torch.max(merge_logits, 1)
                         siamese_label = p*((purity_score>p_thresh).long())
