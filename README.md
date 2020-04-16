@@ -24,17 +24,13 @@ If you find our work useful in your research, please consider citing:
 
 ## Usage
 ### Installation
-We provide a docker image to set up the environment https://hub.docker.com/r/haosulab/shaper. The pytorch we used is `1.0.1.post2`.
+We provide a docker image to set up the environment https://hub.docker.com/r/tiangeluo/learning-to-group. The pytorch we used is `1.0.1.post2`.
 
 When using the docker image for the first time, please run this command to install some CUDA extensions.
 ```
 bash compile.sh
 ```
 
-Every time you start docker, please run this command to install some necessary components.
-```
-pip install -r requirements.txt
-```
 
 Currently, we only support single GPU, please specify the GPU when you use (e.g. `export CUDA_VISIBLE_DEVICES=0`).
 
