@@ -12,13 +12,11 @@ We address the problem of discovering 3D parts for objects in unseen categories.
 ## Citation
 If you find our work useful in your research, please consider citing:
 ```
-@inproceedings{
-      luo2020learning,
+@article{luo2020learning,
       title={Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories},
-      author={Tiange Luo and Kaichun Mo and Zhiao Huang and Jiarui Xu and Siyu Hu and Liwei Wang and Hao Su},
-      booktitle={International Conference on Learning Representations},
-      year={2020},
-      url={https://openreview.net/forum?id=rkl8dlHYvB}
+      author={Luo, Tiange and Mo, Kaichun and Huang, Zhiao and Xu, Jiarui and Hu, Siyu and Wang, Liwei and Su, Hao},
+      journal={arXiv preprint arXiv:2002.06478},
+      year={2020}
 }
 ```
 
