@@ -1,24 +1,30 @@
 # Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories
-![Overview](https://github.com/tiangeluo/Learning-to-Group/blob/master/overview.png)
-
 This repository is code release of the ICLR paper [<a href="https://tiangeluo.github.io/papers/LearningToGroup.pdf">here</a>], where we proposed a zero-shot segmentation framework for 3D shapes.
 
+![Overview](https://github.com/tiangeluo/Learning-to-Group/blob/master/overview.png)
+
 ## Usage
+
 ### Installation
-We provide a docker image to set up the environment [Dockerhub](https://hub.docker.com/r/tiangeluo/learning-to-group). The version of pytorch we used is `1.0.1.post2`. When using the docker image for the first time, please run this command to install some CUDA extensions. (Currently, we only support single GPU.)
+We provide a docker image to set up the environment [Dockerhub](https://hub.docker.com/r/tiangeluo/learning-to-group). The version of pytorch we used is `1.0.1.post2`. When using the docker image for the first time, please run this command to install some CUDA extensions. (Currently, only support single GPU.)
 
 ```
 bash compile.sh
 ```
 
-### Dataset 
-We currently test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. You can download from [Google Drive](https://drive.google.com/file/d/1CTSDQBkMDnsA29cd1DnjRuJeQxbe5ruL/view?usp=sharing). We would use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
-
 ### Test & Evaluate
 
-**Pretrained models** of our main experiments (Section 5.2) are included in ```/outputs/stage1```, `outputs/pn_stage2_fusion_l1_merge`,`outputs/pn_stage2_fusion_l2_merge`,`outputs/pn_stage2_fusion_l3_merge`.
+We currently test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. You can download from [Google Drive](https://drive.google.com/file/d/1CTSDQBkMDnsA29cd1DnjRuJeQxbe5ruL/view?usp=sharing). We would use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
 
-Since PartNet provides up to 3 levels of annotations, we have three corresponding models to inference. For **testing**, please run following scripts. The results will save in the `results/`.
+
+
+**Pretrained models** of our main experiments (Section 5.2) are included in ```/outputs```.
+
+
+
+Since PartNet provides up to 3 levels of annotations, we have three corresponding models to inference. 
+
+For **testing**, please run following scripts. The results will save in the `results/`.
 
 ```
 python test_scripts/run_l3.py
@@ -26,11 +32,17 @@ python test_scripts/run_l2.py
 python test_scripts/run_l1.py
 ```
 
-For **evaluating**, we would collect the part segmentations from all three levels of models and evaluate the Mean Recall. Please go to `eval/` and run `python run_eval.py`.
+For **evaluating**, we would collect the part segmentations from all three levels of models and evaluate the Mean Recall. Please go to `eval/` and run:
 
+```
+python run_eval.py
+```
 
 ### Train on new datasets
+
 If you want to test our method on your datasets, please first look into to our methods (Section 4) and trainning details (Appendix C.1). 
+
+
 
 Our method has two stages. We would first train the sub-part proposal network by running the below command. The trained model would be saved in `outputs/stage1`. Usually, the trained model in the first stage has strong generalizability and can be directly used in new shape categories.
 
