@@ -1,51 +1,48 @@
 # Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories
-Created by <a href="https://tiangeluo.github.io/" target="_blank">Tiange Luo</a>, <a href="https://cs.stanford.edu/~kaichun/" target="_blank">Kaichun Mo</a>, <a href="https://sites.google.com/view/zhiao-huang" target="_blank">Zhiao Huang</a>, <a href="http://jerryxu.net" target="_blank">Jiarui Xu</a>, <a href="https://samhu1989.github.io" target="_blank">Siyu Hu</a>, <a href="https://scholar.google.com/citations?user=VZHxoh8AAAAJ&hl=zh-CN" target="_blank">Liwei Wang</a>, <a href="http://cseweb.ucsd.edu/~haosu/" target="_blank">Hao Su</a>
-
 ![Overview](https://github.com/tiangeluo/Learning-to-Group/blob/master/overview.png)
 
-## Introduction
-This repository is code release for our ICLR 2020 paper [<a href="https://arxiv.org/abs/2002.06478">here</a>].
-
-We address the problem of discovering 3D parts for objects in unseen categories. Being able to learn the geometry prior of parts and transfer this prior to unseen categories pose fundamental challenges on data-driven shape segmentation approaches. Formulated as a contextual bandit problem, we propose a learning-based agglomerative clustering framework which learns a grouping policy to progressively group small part proposals into bigger ones in a bottom-up fashion. At the core of our approach is to restrict the local context for extracting part-level features, which encourages the generalizability to unseen categories. On the large-scale fine-grained 3D part dataset, PartNet, we demonstrate that our method can transfer knowledge of parts learned from 3 training categories to 21 unseen testing categories without seeing any annotated samples. Quantitative comparisons against four shape segmentation baselines shows that our approach achieve the state-of-the-art performance.
-
-
-## Citation
-If you find our work useful in your research, please consider citing:
-```
-@article{luo2020learning,
-      title={Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories},
-      author={Luo, Tiange and Mo, Kaichun and Huang, Zhiao and Xu, Jiarui and Hu, Siyu and Wang, Liwei and Su, Hao},
-      journal={arXiv preprint arXiv:2002.06478},
-      year={2020}
-}
-```
+This repository is code release of the ICLR paper [<a href="https://tiangeluo.github.io/papers/LearningToGroup.pdf">here</a>], where we proposed a zero-shot segmentation framework for 3D shapes.
 
 ## Usage
 ### Installation
-We provide a docker image to set up the environment https://hub.docker.com/r/tiangeluo/learning-to-group. The pytorch we used is `1.0.1.post2`.
+We provide a docker image to set up the environment [Dockerhub](https://hub.docker.com/r/tiangeluo/learning-to-group). The version of pytorch we used is `1.0.1.post2`. When using the docker image for the first time, please run this command to install some CUDA extensions. (Currently, we only support single GPU.)
 
-When using the docker image for the first time, please run this command to install some CUDA extensions.
 ```
 bash compile.sh
 ```
 
+### Dataset 
+We currently test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. You can download from [Google Drive](https://drive.google.com/file/d/1CTSDQBkMDnsA29cd1DnjRuJeQxbe5ruL/view?usp=sharing). We would use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
 
-Currently, we only support single GPU, please specify the GPU when you use (e.g. `export CUDA_VISIBLE_DEVICES=0`).
+### Test & Evaluate
 
-### Download Data
-We test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. Please fill out [this Google Form](https://docs.google.com/forms/d/e/1FAIpQLSd3dyI1eZVIR_Sekvy8_HPXn2becP9lqjDImoe6aVtzmHBe7w/viewform) to get access to all the data and download the HDF5 files (20GB) for the instance segmentation task. We would use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
+**Pretrained models** of our main experiments (Section 5.2) are included in ```/outputs/stage1```, `outputs/pn_stage2_fusion_l1_merge`,`outputs/pn_stage2_fusion_l2_merge`,`outputs/pn_stage2_fusion_l3_merge`.
+
+Since PartNet provides up to 3 levels of annotations, we have three corresponding models to inference. For **testing**, please run following scripts. The results will save in the `results/`.
+
+```
+python test_scripts/run_l3.py
+python test_scripts/run_l2.py
+python test_scripts/run_l1.py
+```
+
+For **evaluating**, we would collect the part segmentations from all three levels of models and evaluate the Mean Recall. Please go to `eval/` and run `python run_eval.py`.
 
 
-### Train
-We would first train the sub-part proposal network by running this command. The trained model would be saved in `outputs/stage1`.
+### Train on new datasets
+If you want to test our method on your datasets, please first look into to our methods (Section 4) and trainning details (Appendix C.1). 
+
+Our method has two stages. We would first train the sub-part proposal network by running the below command. The trained model would be saved in `outputs/stage1`. Usually, the trained model in the first stage has strong generalizability and can be directly used in new shape categories.
+
 ```
 python partnet/train_ins_seg.py --cfg configs/pn_stage1_fusion.yaml
 ```
 
+Then, we train the second stage model, including policy network and verification network. Here, we use the way usually used in RL to train our models. We would run a `producer` to generate grouping trajectory as the training data for a `consumer` for training our models. (1) the producer would generate training data (trajectory) for training, (2) consumer would train the model with the training generated by producer and save the checkpoint, (3) the producer would load the checkpoint and generate data by using the newest model. Therefore, the producer and the consumer share the model but a bit asynchronous. For using, **you should first start the producer, and then start the consumer after the first epoch of the producer.**
 
-Then, we train our policy network and verification network. We would run a `producer` to generate grouping trajectory and training data for a `consumer` which trains our models. The `producer` would use the newest models trained by `consumer`. Also, the `consumer` would train the model on the newest data generated by `producer`.
 
-Our training categories (Chair, Lamp, and Storage Furniture) used in Section 5.1 have three levels of part segmentation annotations. For each level, we train a segmentation model by running the following scripts:
+
+We also provide the **training scripts** for our experiments here. Our training categories (Chair, Lamp, and Storage Furniture) used in Section 5.1 have three levels of part segmentation annotations. For each level, we train a segmentation model by running the following scripts:
 ```
 python partnet/train_producer.py --cfg configs/pn_stage2_fusion_l3.yaml
 python partnet/train_consumer.py --cfg configs/pn_stage2_fusion_l3.yaml
@@ -57,30 +54,19 @@ python partnet/train_producer_remote.py --cfg configs/pn_stage2_fusion_l1.yaml
 python partnet/train_consumer.py --cfg configs/pn_stage2_fusion_l1.yaml
 ```
 
-### Test
-For each shape, we would use all three levels of models to inference. Run following scripts and the results will save in the `results/`.
+## Citation
+
+If you find our work useful in your research, please consider citing:
 
 ```
-python test_scripts/run_l3.py
-python test_scripts/run_l2.py
-python test_scripts/run_l1.py
+@article{luo2020learning,
+      title={Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories},
+      author={Luo, Tiange and Mo, Kaichun and Huang, Zhiao and Xu, Jiarui and Hu, Siyu and Wang, Liwei and Su, Hao},
+      journal={arXiv preprint arXiv:2002.06478},
+      year={2020}
+}
 ```
-
-### Evaluate
-For each shape, we would collect the part proposals from all three levels of models and evaluate the Mean Recall.
-
-Please go to `eval/` and run `python run_eval.py`.
-
-
-## Pretrained Models
-Pretrained models can be downloaded [here](https://drive.google.com/open?id=1jBPWiH4TpVc2lHEPEI-59d7nwoHL5sXw).
-
-- Please move `model_120.pth` to `outputs/stage1/fusion`.
-
-- Please move `model_1600_l3.pth` to `outputs/pn_stage2_fusion_l3_merge` and rename as `model_1600.pth`, copy a `last_checkpoint` to `outputs/pn_stage2_fusion_l3_merge`.
-- Please move `model_1600_l2.pth` to `outputs/pn_stage2_fusion_l2_merge` and rename as `model_1600.pth`, copy a `last_checkpoint` to `outputs/pn_stage2_fusion_l2_merge`.
-- Please move `model_1600_l1.pth` to `outputs/pn_stage2_fusion_l1_merge` and rename as `model_1600.pth`, copy a `last_checkpoint` to `outputs/pn_stage2_fusion_l1_merge`.
-
 
 ## Acknowledgements
+
 This repo is based on the 3d vision pytorch library **shaper** implemented by <a href="https://sites.google.com/eng.ucsd.edu/jiayuan-gu" target="_blank">Jiayuan Gu</a>.
