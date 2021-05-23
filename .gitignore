@@ -31,4 +31,3 @@ dist/
 # project dirs
 /data
 !/data/*.sh
-/outputs
