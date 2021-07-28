@@ -6,7 +6,7 @@ This repository is code release of the ICLR paper [<a href="https://tiangeluo.gi
 ## Usage
 
 ### Installation
-We provide a docker image to set up the environment [Dockerhub](https://hub.docker.com/r/tiangeluo/learning-to-group). The version of pytorch we used is `1.0.1.post2`. When using the docker image for the first time, please run this command to install some CUDA extensions. (Currently, only support single GPU.)
+We provide a docker image to set up the environment [Dockerhub](https://hub.docker.com/r/tiangeluo/learning-to-group). The version of pytorch we used is `1.0.1.post2`. When using the docker image for the first time, please run the below command to install CUDA extensions. (Currently, only support single GPU.)
 
 ```
 bash compile.sh
@@ -14,17 +14,11 @@ bash compile.sh
 
 ### Test & Evaluate
 
-We currently test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. You can download from [Google Drive](https://drive.google.com/file/d/1CTSDQBkMDnsA29cd1DnjRuJeQxbe5ruL/view?usp=sharing). We would use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
-
-
-
 **Pretrained models** of our main experiments (Section 5.2) are included in ```/outputs```.
 
+We currently test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. You can download from [Google Drive](https://drive.google.com/file/d/1CTSDQBkMDnsA29cd1DnjRuJeQxbe5ruL/view?usp=sharing). We would use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
 
-
-Since PartNet provides up to 3 levels of annotations, we have three corresponding models to inference. 
-
-For **testing**, please run following scripts. The results will save in the `results/`.
+For **testing**, please run following scripts. The results will save in the `results/`. Since PartNet provides up to 3 levels of annotations, we have three corresponding models to inference. 
 
 ```
 python test_scripts/run_l3.py
