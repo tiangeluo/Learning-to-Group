@@ -1,5 +1,5 @@
 # Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories
-This repository is code release of the ICLR paper [<a href="https://tiangeluo.github.io/papers/LearningToGroup.pdf">here</a>], where we proposed a zero-shot segmentation framework for 3D shapes. During our inference, we progressively group small subparts into larger ones, and thus obtaining a grouping tree which starts from small proposals to the final segmentation results. Please see [Demo](https://github.com/tiangeluo/Learning-to-Group/blob/master/results/Table/Level_3/tree/html/index.html).
+This repository is code release of the ICLR paper [<a href="https://tiangeluo.github.io/papers/LearningToGroup.pdf">here</a>], where we proposed a zero-shot segmentation framework for 3D shapes. During our inference, we progressively group small subparts into larger ones, and thus obtaining a grouping tree which starts from small proposals to the final segmentation results. Please see the [grouping tree](https://tiangeluo.github.io/ltg_visu/html/index.html).
 
 ![Overview](https://github.com/tiangeluo/Learning-to-Group/blob/master/overview.png)
 
@@ -31,12 +31,17 @@ python run_eval.py
 ```
 
 ## Visualization
+
+![a sample of grouping tree](https://github.com/tiangeluo/Learning-to-Group/blob/master/grouping_tree.png)
+
 We visualize the grouping tree by running the below commands. For a specify config file (e.g., `l3_table.yaml`), `test_gentree.py` would generate the tree topology and save at the corresponding directory (`/results/Table/Level_3`) and `visu_tree.py` would render all subparts ([Thea](https://github.com/sidch/Thea)) and generate htmls to organize the generated images. **Note**: The code uses [Thea](https://github.com/sidch/Thea) for rendering, please install it before running the commands.
 
 ```
 python partnet/test_gentree.py --cfg test_configs/l3_table.yaml
 python partnet/visu_tree.py --cfg test_configs/l3_table.yaml
 ```
+
+The results will save at the corresponding directory (e.g., `/results/Table/Level_3/tree/html`), please open `index.html` at the `html` directory to view. Currently, the code only supports for visualizing level-3 segmentation, and please submit a issue if you need to visualize level-1 and level-2 segmentation results.
 
 ## Train on new datasets
 
