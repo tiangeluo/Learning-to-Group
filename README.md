@@ -1,18 +1,16 @@
 # Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories
-This repository is code release of the ICLR paper [<a href="https://tiangeluo.github.io/papers/LearningToGroup.pdf">here</a>], where we proposed a zero-shot segmentation framework for 3D shapes.
+This repository is code release of the ICLR paper [<a href="https://tiangeluo.github.io/papers/LearningToGroup.pdf">here</a>], where we proposed a zero-shot segmentation framework for 3D shapes. During our inference, we progressively group small subparts into larger ones, and thus obtaining a grouping tree which starts from small proposals to the final segmentation results. Please see [Demo](https://github.com/tiangeluo/Learning-to-Group/blob/master/results/Table/Level_3/tree/html/index.html).
 
 ![Overview](https://github.com/tiangeluo/Learning-to-Group/blob/master/overview.png)
 
-## Usage
-
-### Installation
+## Installation
 We provide a docker image to set up the environment [Dockerhub](https://hub.docker.com/r/tiangeluo/learning-to-group). The version of pytorch we used is `1.0.1.post2`. When using the docker image for the first time, please run the below command to install CUDA extensions. (Currently, only support single GPU.)
 
 ```
 bash compile.sh
 ```
 
-### Test & Evaluate
+## Test & Evaluate
 
 **Pretrained models** of our main experiments (Section 5.2) are included in ```/outputs```.
 
@@ -32,7 +30,15 @@ For **evaluating**, we would collect the part segmentations from all three level
 python run_eval.py
 ```
 
-### Train on new datasets
+## Visualization
+We visualize the grouping tree by running the below commands. For a specify config file (e.g., `l3_table.yaml`), `test_gentree.py` would generate the tree topology and save at the corresponding directory (`/results/Table/Level_3`) and `visu_tree.py` would render all subparts ([Thea](https://github.com/sidch/Thea)) and generate htmls to organize the generated images. **Note**: The code uses [Thea](https://github.com/sidch/Thea) for rendering, please install it before running the commands.
+
+```
+python partnet/test_gentree.py --cfg test_configs/l3_table.yaml
+python partnet/visu_tree.py --cfg test_configs/l3_table.yaml
+```
+
+## Train on new datasets
 
 If you want to test our method on your datasets, please first look into to our methods (Section 4) and trainning details (Appendix C.1). 
 

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+<style>
+body {
+    margin: 0;
+}
+
+main {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+</style>
+</head>
+<body>
+    <main>
+        <div style="padding: 8px">
+            <ul style="display: flex; flex-direction: row; align-items: center">
+                <div style="padding: 8px" id="cur-page"></div>
+                <li style="padding: 8px"><a href="#" onclick="first()">First</a></li>
+                <li style="padding: 8px"><a href="#" onclick="prev()">Prev</a></li>
+                <li style="padding: 8px"><a href="#" onclick="next()">Next</a></li>
+                <li style="padding: 8px">
+                    <label for="jump-to">jump to</label>
+                    <input id="jump-to"/>
+                    <button onclick="go()">go</button>
+                </li>
+            </ul>
+        </div>
+        <iframe id="container" style="width: 100%; margin: 0; border: none; flex-grow: 1"></iframe>
+    </main>
+<script>
+let curPage = 0,
+    maxPage = 100,
+    minPage = 0;
+function first() {
+    jumpTo(0);
+}
+
+function next() {
+    jumpTo(curPage + 1);
+}
+
+function prev() {
+    jumpTo(curPage - 1);
+}
+
+function go() {
+    const input = document.getElementById("jump-to");
+    jumpTo(+input.value);
+}
+
+function jumpTo(page) {
+    const input = document.getElementById("jump-to");
+    if(typeof page !== "number" || isNaN(page) || page < minPage || page > maxPage) {
+        input.value = curPage.toString();
+        return;
+    }
+    const target = `./${page.toString().padStart(3, "0")}.html`;
+    document.getElementById("container").src = target;
+    document.getElementById("cur-page").textContent = target;
+    curPage = page;
+    input.value = curPage.toString();
+}
+
+window.addEventListener("load", function () {
+    jumpTo(0);
+
+    const input = document.getElementById("jump-to");
+    input.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            go();
+        }
+    });
+});
+</script>
+</body>
+</html>
