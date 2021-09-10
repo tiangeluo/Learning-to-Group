@@ -1,0 +1,1 @@
+Merge: id:247 = [7, 240], score 0.13 = policy 5.41 x purity 0.74, gt_purity 0.82, right: 1, part label: [1, 1]

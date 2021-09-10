@@ -1,0 +1,1 @@
+id:66, purity_score: 0.85

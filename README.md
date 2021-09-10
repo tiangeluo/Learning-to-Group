@@ -1,6 +1,8 @@
 # Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories
 This repository is code release of the ICLR paper [<a href="https://tiangeluo.github.io/papers/LearningToGroup.pdf">here</a>], where we proposed a zero-shot segmentation framework for 3D shapes. During our inference, we progressively group small subparts into larger ones, and thus obtaining a grouping tree which starts from small proposals to the final segmentation results. Please see the [grouping tree](https://tiangeluo.github.io/ltg_visu/html/index.html).
 
+The testing environment and pre-trained models are included for reproducibility.
+
 ![Overview](https://github.com/tiangeluo/Learning-to-Group/blob/master/overview.png)
 
 ## Installation
@@ -14,7 +16,7 @@ bash compile.sh
 
 **Pretrained models** of our main experiments (Section 5.2) are included in ```/outputs```.
 
-We currently test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. You can download from [Google Drive](https://drive.google.com/file/d/1CTSDQBkMDnsA29cd1DnjRuJeQxbe5ruL/view?usp=sharing). We would use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
+We currently test on the [PartNet](https://cs.stanford.edu/~kaichun/partnet/) dataset. The used partitions can be downloaded from [Google Drive](https://drive.google.com/file/d/1CTSDQBkMDnsA29cd1DnjRuJeQxbe5ruL/view?usp=sharing). We use the data under `/ins_seg_h5/ins_seg_h5_for_detection` to train our models and the data under `/ins_seg_h5/ins_seg_h5_gt` to evaluate.
 
 For **testing**, please run following scripts. The results will save in the `results/`. Since PartNet provides up to 3 levels of annotations, we have three corresponding models to inference. 
 
@@ -86,4 +88,4 @@ If you find our work useful in your research, please consider citing:
 
 ## Acknowledgements
 
-This repo is based on the 3d vision pytorch library **shaper** implemented by <a href="https://sites.google.com/eng.ucsd.edu/jiayuan-gu" target="_blank">Jiayuan Gu</a>.
+This repo is based on the 3d vision pytorch library **shaper** implemented by <a href="https://github.com/Jiayuan-Gu">Jiayuan Gu</a>.
