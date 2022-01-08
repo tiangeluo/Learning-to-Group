@@ -86,6 +86,3 @@ If you find our work useful in your research, please consider citing:
 }
 ```
 
-## Acknowledgements
-
-This repo is based on the 3d vision pytorch library **shaper** implemented by <a href="https://github.com/Jiayuan-Gu">Jiayuan Gu</a>.
