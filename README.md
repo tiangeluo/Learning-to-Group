@@ -12,7 +12,7 @@ We provide a docker image to set up the environment [Dockerhub](https://hub.dock
 bash compile.sh
 ```
 
-## Test & Evaluate
+## Test & Evaluate 
 
 **Pretrained models** of our main experiments (Section 5.2) are included in ```/outputs```.
 
