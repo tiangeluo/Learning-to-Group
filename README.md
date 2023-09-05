@@ -1,4 +1,8 @@
 # Learning to Group: A Bottom-Up Framework for 3D Part Discovery in Unseen Categories
+
+<a href="https://tiangeluo.github.io/projectpages/ltg.html"><img src="https://img.shields.io/static/v1?label=Project&message=Website&color=red" height=20.5></a> 
+<a href="https://arxiv.org/abs/2002.06478"><img src="https://img.shields.io/badge/arXiv-2002.06478-b31b1b.svg" height=20.5></a>
+
 This repository is code release of the ICLR paper [<a href="https://tiangeluo.github.io/papers/LearningToGroup.pdf">here</a>], where we proposed a zero-shot segmentation framework for 3D shapes. During our inference, we progressively group small subparts into larger ones, and thus obtaining a grouping tree which starts from small proposals to the final segmentation results. Please see the [grouping tree](https://tiangeluo.github.io/ltg_visu/html/index.html).
 
 The testing environment and pre-trained models are included for reproducibility.
